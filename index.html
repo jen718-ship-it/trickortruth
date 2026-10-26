@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2 Truths and 1 Trick</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Fonts matching local folder assets */
+        @font-face {
+            font-family: 'Brozier';
+            src: url('Brozier.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Comic Sans MS Custom';
+            src: url('ComicSansMS3.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1e0b36 0%, #0a0314 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            font-family: 'Comic Sans MS Custom', 'Comic Sans MS', cursive, sans-serif;
+            user-select: none;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-brozier {
+            font-family: 'Brozier', 'Comic Sans MS Custom', 'Impact', sans-serif;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px #f97316, 0 0 25px #ea580c, 4px 4px 0px #000;
+        }
+
+        /* Bold Black text with crisp white outline */
+        .statement-text {
+            font-family: 'Comic Sans MS Custom', 'Comic Sans MS', cursive, sans-serif;
+            font-weight: 900;
+            color: #000000;
+            font-size: 1.2rem;
+            text-align: center;
+            line-height: 1.2;
+            white-space: nowrap;
+            text-shadow: 
+                -2px -2px 0 #ffffff,
+                 2px -2px 0 #ffffff,
+                -2px  2px 0 #ffffff,
+                 2px  2px 0 #ffffff,
+                 0px -2px 0 #ffffff,
+                 0px  2px 0 #ffffff,
+                -2px  0px 0 #ffffff,
+                 2px  0px 0 #ffffff;
+            letter-spacing: 0.5px;
+        }
+
+        /* Jack-o'-lantern Shake & Glow Animation on Trick */
+        @keyframes trickGlowShake {
+            0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); filter: drop-shadow(0 0 25px #ef4444); }
+            15% { transform: translate3d(-15px, -5px, 0) rotate(-10deg); filter: drop-shadow(0 0 35px #ef4444); }
+            30% { transform: translate3d(15px, 5px, 0) rotate(10deg); filter: drop-shadow(0 0 45px #dc2626); }
+            45% { transform: translate3d(-15px, 5px, 0) rotate(-8deg); filter: drop-shadow(0 0 50px #ef4444); }
+            60% { transform: translate3d(15px, -5px, 0) rotate(8deg); filter: drop-shadow(0 0 40px #dc2626); }
+            75% { transform: translate3d(-8px, -2px, 0) rotate(-4deg); filter: drop-shadow(0 0 30px #ef4444); }
+            100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.4)); }
+        }
+
+        .trick-shake {
+            animation: trickGlowShake 0.75s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* Portrait Deck Card Style (Standard Playing Card with White Background) */
+        .character-card {
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease, border-color 0.25s ease;
+            background-color: #ffffff;
+            border: 4px solid #a855f7;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.7);
+            border-radius: 1.25rem;
+            aspect-ratio: 3 / 4;
+            height: auto;
+            min-height: 0;
+            min-width: 0;
+            overflow: hidden;
+            align-self: start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem;
+            will-change: transform;
+        }
+
+        .character-card:hover:not(.completed) {
+            transform: translate3d(0, -8px, 0) scale(1.04);
+            border-color: #f97316;
+            box-shadow: 0 20px 35px rgba(249, 115, 22, 0.6);
+        }
+
+        /* Completed Cards: Turned Black & White */
+        .character-card.completed {
+            filter: grayscale(100%);
+            opacity: 0.4;
+            pointer-events: none;
+            cursor: not-allowed;
+            border-color: #6b7280;
+            box-shadow: none;
+            transform: none !important;
+        }
+
+        /* Candy Statement Holder Container - Sharp Hardware Accelerated Rendering */
+        .candy-holder {
+            position: relative;
+            cursor: grab;
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease, filter 0.2s ease;
+            background-image: url('Candy Sentence Holder.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 110px;
+            width: 100%;
+            max-width: 310px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 2rem;
+            flex-shrink: 0;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
+        .candy-holder:active {
+            cursor: grabbing;
+        }
+
+        .candy-holder.selected-click {
+            transform: translate3d(0, 0, 0) scale(1.08);
+            filter: drop-shadow(0 0 15px #facc15);
+        }
+
+        .candy-holder.is-dragging {
+            opacity: 0.5;
+            transform: translate3d(0, 0, 0) scale(0.96);
+        }
+
+        /* Touch Drag Ghost Clone Element */
+        .touch-drag-clone {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
+            transform: scale(1.05);
+            transition: transform 0.05s linear;
+        }
+
+        /* Jack-o'-lantern Drop Zone Highlight */
+        .jack-target.drag-over {
+            transform: translate3d(0, 0, 0) scale(1.08);
+            filter: drop-shadow(0 0 35px #f97316);
+        }
+
+        /* Animated Green Checkmark SVG Overlay */
+        @keyframes checkmarkPop {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            70% { transform: scale(1.3) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .animate-check {
+            animation: checkmarkPop 0.5s ease-out forwards;
+        }
+
+        /* Victory Confetti */
+        .confetti {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            animation: fall 3s ease-in-out infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate3d(0, 100vh, 0) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between p-4 min-h-screen">
+
+    <!-- Title and Instructions -->
+    <header class="text-center mt-2 mb-4">
+        <h1 class="font-brozier text-4xl sm:text-5xl md:text-6xl text-orange-500 tracking-wider">
+            Trick or Truth
+        </h1>
+        <p class="mt-3 text-lg sm:text-xl md:text-2xl text-white font-bold drop-shadow-lg">
+            Drag 2 truths to the jack-o'-lantern.
+        </p>
+    </header>
+
+    <!-- Main Game Viewport -->
+    <main class="w-full max-w-6xl flex-1 flex flex-col items-center justify-center relative">
+
+        <!-- CHARACTER SELECTION DECK GRID (Portrait White Cards) -->
+        <div id="deck-view" class="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-5 p-4 my-auto">
+            <!-- Dynamically populated character deck cards -->
+        </div>
+
+        <!-- ROUND GAMEPLAY AREA (Desktop Layout) -->
+        <div id="gameplay-view" class="w-full flex flex-col items-center justify-between gap-8 hidden my-auto py-2">
+            
+            <!-- TOP ROW: 3 Candy Statement Holders Lined Up Horizontally -->
+            <div id="statements-container" class="w-full flex flex-row items-center justify-center gap-4 sm:gap-6 flex-wrap">
+                <!-- Dynamic Candy Statements -->
+            </div>
+
+            <!-- BOTTOM ROW: Character Image Beside Jack-o'-lantern Basket -->
+            <div class="w-full flex flex-row items-center justify-center gap-12 sm:gap-20 mt-4">
+                
+                <!-- Character Image -->
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-48 h-64 sm:w-56 sm:h-72 flex items-center justify-center">
+                        <img id="active-char-img" src="" alt="Character" class="max-w-full max-h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]">
+                    </div>
+                    <div id="active-char-name" class="text-center text-white font-bold text-2xl sm:text-3xl drop-shadow-[0_3px_6px_rgba(0,0,0,0.9)]"></div>
+                </div>
+
+                <!-- Jack-o'-lantern Basket Drop / Click Target Zone -->
+                <div id="jack-target" onclick="handleBasketClick()" class="jack-target relative cursor-pointer transition-transform duration-300 p-2 rounded-full flex items-center justify-center">
+                    
+                    <img id="basket-img" src="jack o lantern basket.png" alt="Jack-o'-lantern Basket" class="w-56 h-56 sm:w-72 sm:h-72 object-contain drop-shadow-[0_0_25px_rgba(249,115,22,0.7)] transition-all">
+
+                    <!-- Green Check Overlay on Truth -->
+                    <div id="check-overlay" class="absolute inset-0 flex items-center justify-center pointer-events-none hidden bg-black/30 rounded-2xl">
+                        <svg class="w-32 h-32 sm:w-40 sm:h-40 text-green-400 drop-shadow-[0_0_25px_rgba(74,222,128,1)] animate-check" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- VICTORY SCREEN -->
+        <div id="victory-view" class="w-full text-center flex-col items-center justify-center gap-6 hidden py-12">
+            <div class="relative inline-block">
+                <img src="jack o lantern basket.png" alt="Victory Basket" class="w-48 h-48 sm:w-64 sm:h-64 mx-auto object-contain drop-shadow-[0_0_35px_rgba(249,115,22,0.8)] animate-bounce">
+            </div>
+            
+            <h2 class="font-brozier text-4xl md:text-6xl text-yellow-400 tracking-wider leading-tight">
+                Great Job!<br>Happy Halloween!
+            </h2>
+
+            <button onclick="resetGame()" class="mt-6 px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white text-2xl rounded-full font-bold shadow-2xl transform transition hover:scale-105 active:scale-95 border-4 border-yellow-300">
+                Play Again 🎃
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Confetti Overlay Container -->
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
+
+    <script>
+        // Game Statements & Character Configuration
+        const gameData = [
+            {
+                id: 'vampire',
+                name: 'Vampire',
+                img: 'vampire.png',
+                statements: [
+                    { text: "1. It is black.", isTruth: true },
+                    { text: "2. It has fangs.", isTruth: true },
+                    { text: "3. It has wings.", isTruth: false }
+                ]
+            },
+            {
+                id: 'mummy',
+                name: 'Mummy',
+                img: 'mummy.png',
+                statements: [
+                    { text: "1. It is white.", isTruth: true },
+                    { text: "2. It is orange.", isTruth: false },
+                    { text: "3. It has bandages.", isTruth: true }
+                ]
+            },
+            {
+                id: 'zombie',
+                name: 'Zombie',
+                img: 'zombie.png',
+                statements: [
+                    { text: "1. It has fangs.", isTruth: false },
+                    { text: "2. It is green.", isTruth: true },
+                    { text: "3. It has big eyes.", isTruth: true }
+                ]
+            },
+            {
+                id: 'bat',
+                name: 'Bat',
+                img: 'bat.png',
+                statements: [
+                    { text: "1. It has bandages.", isTruth: false },
+                    { text: "2. It is black.", isTruth: true },
+                    { text: "3. It has wings.", isTruth: true }
+                ]
+            },
+            {
+                id: 'jack',
+                name: "Jack-o'-lantern",
+                img: 'jack o lantern.png',
+                statements: [
+                    { text: "1. It is white.", isTruth: false },
+                    { text: "2. It has a face.", isTruth: true },
+                    { text: "3. It has eyes.", isTruth: true }
+                ]
+            },
+            {
+                id: 'ghost',
+                name: 'Ghost',
+                img: 'ghost.png',
+                statements: [
+                    { text: "1. It is white.", isTruth: true },
+                    { text: "2. It has no feet.", isTruth: true },
+                    { text: "3. It has bandages.", isTruth: false }
+                ]
+            }
+        ];
+
+        let completedCharacters = new Set();
+        let currentCharacter = null;
+        let correctCountCurrentRound = 0;
+        let selectedCandyForClick = null;
+        let roundCompletionScheduled = false;
+
+        // Sound Synthesizer via Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'trick') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(90, audioCtx.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'win') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const noteOsc = audioCtx.createOscillator();
+                        const noteGain = audioCtx.createGain();
+                        noteOsc.connect(noteGain);
+                        noteGain.connect(audioCtx.destination);
+                        noteOsc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.12);
+                        noteGain.gain.setValueAtTime(0.2, audioCtx.currentTime + idx * 0.12);
+                        noteGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + idx * 0.12 + 0.3);
+                        noteOsc.start(audioCtx.currentTime + idx * 0.12);
+                        noteOsc.stop(audioCtx.currentTime + idx * 0.12 + 0.3);
+                    });
+                }
+            } catch(e) {}
+        }
+
+        // Render Cards Deck View
+        function renderDeck() {
+            const deckContainer = document.getElementById('deck-view');
+            deckContainer.innerHTML = '';
+
+            gameData.forEach(char => {
+                const isCompleted = completedCharacters.has(char.id);
+                const cardWrapper = document.createElement('div');
+                cardWrapper.className = 'flex flex-col items-center gap-2';
+
+                const card = document.createElement('div');
+                card.className = `character-card w-full ${isCompleted ? 'completed' : 'cursor-pointer'}`;
+                // Keep every card the same size, regardless of the image's intrinsic dimensions.
+                card.style.aspectRatio = '3 / 4';
+                card.style.height = 'auto';
+                card.innerHTML = `
+                    <div style="width:100%;height:100%;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;padding:0.5rem;">
+                        <img src="${char.img}" alt="${char.name}" style="display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;">
+                    </div>
+                `;
+
+                const nameLabel = document.createElement('div');
+                nameLabel.className = 'text-center text-white font-bold text-lg sm:text-xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]';
+                nameLabel.textContent = char.name;
+
+                if (!isCompleted) {
+                    card.addEventListener('click', () => startRound(char));
+                }
+
+                cardWrapper.appendChild(card);
+                cardWrapper.appendChild(nameLabel);
+                deckContainer.appendChild(cardWrapper);
+            });
+        }
+
+        // Start Gameplay Round
+        function startRound(character) {
+            currentCharacter = character;
+            correctCountCurrentRound = 0; // Strictly Reset to 0
+            roundCompletionScheduled = false;
+            selectedCandyForClick = null;
+
+            document.getElementById('deck-view').classList.add('hidden');
+            document.getElementById('gameplay-view').classList.remove('hidden');
+
+            document.getElementById('active-char-img').src = character.img;
+            document.getElementById('active-char-name').textContent = character.name;
+
+            const container = document.getElementById('statements-container');
+            container.innerHTML = '';
+
+            character.statements.forEach((stmt, index) => {
+                const candy = document.createElement('div');
+                candy.className = 'candy-holder';
+                candy.draggable = true;
+                candy.dataset.isTruth = stmt.isTruth ? "true" : "false";
+                candy.id = `stmt-${index}`;
+
+                candy.innerHTML = `<span class="statement-text">${stmt.text}</span>`;
+
+                setupInteractions(candy);
+
+                container.appendChild(candy);
+            });
+
+            setupDropTarget();
+        }
+
+        // Crisp Drag, Touch, and Click-Select Handling
+        let draggedItem = null;
+        let touchClone = null;
+
+        function setupInteractions(element) {
+            element.addEventListener('click', () => {
+                if (selectedCandyForClick === element) {
+                    element.classList.remove('selected-click');
+                    selectedCandyForClick = null;
+                } else {
+                    if (selectedCandyForClick) {
+                        selectedCandyForClick.classList.remove('selected-click');
+                    }
+                    selectedCandyForClick = element;
+                    element.classList.add('selected-click');
+                }
+            });
+
+            // HTML5 Drag
+            element.addEventListener('dragstart', (e) => {
+                draggedItem = element;
+                e.dataTransfer.setData('text/plain', element.id);
+                
+                // High-performance smooth drag representation
+                requestAnimationFrame(() => {
+                    element.classList.add('is-dragging');
+                });
+            });
+
+            element.addEventListener('dragend', () => {
+                element.classList.remove('is-dragging');
+                draggedItem = null;
+            });
+
+            // Touch Support for Mobile/Tablets
+            element.addEventListener('touchstart', (e) => {
+                draggedItem = element;
+                const touch = e.touches[0];
+                
+                touchClone = element.cloneNode(true);
+                touchClone.classList.add('touch-drag-clone');
+                touchClone.style.width = `${element.offsetWidth}px`;
+                touchClone.style.height = `${element.offsetHeight}px`;
+                touchClone.style.left = `${touch.clientX - (element.offsetWidth / 2)}px`;
+                touchClone.style.top = `${touch.clientY - (element.offsetHeight / 2)}px`;
+                
+                document.body.appendChild(touchClone);
+                element.classList.add('is-dragging');
+            }, { passive: true });
+
+            element.addEventListener('touchmove', (e) => {
+                if (!touchClone) return;
+                const touch = e.touches[0];
+                touchClone.style.left = `${touch.clientX - (element.offsetWidth / 2)}px`;
+                touchClone.style.top = `${touch.clientY - (element.offsetHeight / 2)}px`;
+
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                const jackTarget = document.getElementById('jack-target');
+                if (jackTarget && jackTarget.contains(target)) {
+                    jackTarget.classList.add('drag-over');
+                } else if (jackTarget) {
+                    jackTarget.classList.remove('drag-over');
+                }
+            }, { passive: true });
+
+            element.addEventListener('touchend', (e) => {
+                if (touchClone) {
+                    touchClone.remove();
+                    touchClone = null;
+                }
+                element.classList.remove('is-dragging');
+
+                const touch = e.changedTouches[0];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                const jackTarget = document.getElementById('jack-target');
+
+                if (jackTarget) {
+                    jackTarget.classList.remove('drag-over');
+                    if (jackTarget.contains(target) && draggedItem) {
+                        handleDrop(draggedItem);
+                    }
+                }
+                draggedItem = null;
+            });
+        }
+
+        function setupDropTarget() {
+            const jackTarget = document.getElementById('jack-target');
+
+            jackTarget.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                jackTarget.classList.add('drag-over');
+            });
+
+            jackTarget.addEventListener('dragleave', () => {
+                jackTarget.classList.remove('drag-over');
+            });
+
+            jackTarget.addEventListener('drop', (e) => {
+                e.preventDefault();
+                jackTarget.classList.remove('drag-over');
+                if (draggedItem) {
+                    handleDrop(draggedItem);
+                }
+            });
+        }
+
+        function handleBasketClick() {
+            if (selectedCandyForClick) {
+                handleDrop(selectedCandyForClick);
+                selectedCandyForClick.classList.remove('selected-click');
+                selectedCandyForClick = null;
+            }
+        }
+
+        // Logic Evaluation
+        function handleDrop(element) {
+            // Ignore repeated drops of a statement that has already been handled.
+            // This prevents the same truth from being counted twice during its fade-out.
+            if (!element || element.dataset.handled === 'true' || roundCompletionScheduled) return;
+
+            const isTruth = (element.dataset.isTruth === "true");
+            const jackTarget = document.getElementById('jack-target');
+
+            if (isTruth) {
+                element.dataset.handled = 'true';
+                element.draggable = false;
+                if (selectedCandyForClick === element) selectedCandyForClick = null;
+                // Truth Statement Dropped
+                playSound('correct');
+                showCheckmark();
+
+                // Smooth disappearance animation
+                element.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease';
+                element.style.transform = 'translate3d(0, 0, 0) scale(0)';
+                element.style.opacity = '0';
+                element.style.pointerEvents = 'none';
+
+                // INCREMENT TRUTH COUNTER ONLY ON TRUTH
+                correctCountCurrentRound++;
+
+                // ROUND ONLY ADVANCES WHEN 2 TRUTHS ARE DROPPED
+                if (correctCountCurrentRound === 2 && !roundCompletionScheduled) {
+                    // Lock the round only after both distinct truth cards have been dropped.
+                    roundCompletionScheduled = true;
+                    completedCharacters.add(currentCharacter.id);
+
+                    setTimeout(() => {
+                        if (completedCharacters.size === gameData.length) {
+                            showVictory();
+                        } else {
+                            document.getElementById('gameplay-view').classList.add('hidden');
+                            document.getElementById('deck-view').classList.remove('hidden');
+                            renderDeck();
+                        }
+                    }, 1000);
+                }
+
+            } else {
+                // Trick statement remains available; it never advances or completes the round.
+                playSound('trick');
+                jackTarget.classList.remove('trick-shake');
+                void jackTarget.offsetWidth; // Trigger reflow for animation restart
+                jackTarget.classList.add('trick-shake');
+
+                setTimeout(() => {
+                    jackTarget.classList.remove('trick-shake');
+                }, 750);
+            }
+        }
+
+        function showCheckmark() {
+            const overlay = document.getElementById('check-overlay');
+            overlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 800);
+        }
+
+        function showVictory() {
+            playSound('win');
+            document.getElementById('gameplay-view').classList.add('hidden');
+            document.getElementById('deck-view').classList.add('hidden');
+            document.getElementById('victory-view').classList.remove('hidden');
+            document.getElementById('victory-view').classList.add('flex');
+
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            const colors = ['#f97316', '#eab308', '#a855f7', '#22c55e', '#ef4444', '#3b82f6'];
+
+            for (let i = 0; i < 70; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'confetti';
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.animationDuration = `${2 + Math.random() * 2}s`;
+                particle.style.animationDelay = `${Math.random() * 1.5}s`;
+                container.appendChild(particle);
+            }
+        }
+
+        function resetGame() {
+            completedCharacters.clear();
+            currentCharacter = null;
+            correctCountCurrentRound = 0;
+            roundCompletionScheduled = false;
+            selectedCandyForClick = null;
+
+            document.getElementById('victory-view').classList.add('hidden');
+            document.getElementById('victory-view').classList.remove('flex');
+            document.getElementById('confetti-container').innerHTML = '';
+
+            document.getElementById('deck-view').classList.remove('hidden');
+            renderDeck();
+        }
+
+        window.onload = () => {
+            renderDeck();
+        };
+    </script>
+</body>
+</html>
